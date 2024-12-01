@@ -54,20 +54,22 @@ public class Compra {
      * It is annotated with {@link ManyToMany} to indicate a many-to-many relationship with the {@link Produto} entity.
      * The join table is named "compra_produto", and the join columns are "compra_id" and "produto_id".
      */
-    @ManyToMany
-    @JoinTable(
-            name = "compra_produto",
-            joinColumns = @JoinColumn(name = "compra_id"),
-            inverseJoinColumns = @JoinColumn(name = "produto_id")
-    )
-    private List<Produto> produtos = new ArrayList<>();
+    @OneToMany(mappedBy = "compra", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CompraProduto> compraProdutos = new ArrayList<>();
 
     @Column(name = "VALORTOTAL")
     private double valorTotal;
 
-    public void calculateValorTotal() {
-        // Calcula o valor total da compra somando os preços dos produtos
-        this.valorTotal = produtos.stream().mapToDouble(Produto::getPrice).sum();
+    public double sumTotalValue() {
+        return compraProdutos.stream()
+                .mapToDouble(cp -> cp.getQuantidade() * cp.getProduto().getPrice())
+                .sum();
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void updateTotalValue() {
+        this.valorTotal = sumTotalValue();
     }
 
 }

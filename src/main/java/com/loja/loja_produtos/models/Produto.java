@@ -41,7 +41,8 @@ public class Produto {
      * The price of the product.
      */
     private double price;
-    @ManyToMany(mappedBy = "produtos")
-    private List<Compra> compras = new ArrayList<>();
+
+    @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL)
+    private List<CompraProduto> compraProdutos = new ArrayList<>();
 
 }
